@@ -42,8 +42,8 @@ def cleanup_code(code):
 
     code = code.strip()
 
-    # if align* in code we don't need delimiters
-    if r'align*' in code:
+    # if align* or {align} in code we don't need delimiters
+    if (r'align*' in code) or ('{align}' in code):
         if code.startswith(r'\('):
             code = code[2:]
         if code.endswith('\)'):
