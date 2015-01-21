@@ -331,9 +331,9 @@ def pstikz2png(iPictureElement, iLatex, iReturnEps=False, iPageWidthPx=None,
 
         # check if this exists
         if not os.path.exists(texlivepath + '/pdflatex'):
-            texlivepath = '/usr/texbin'
+            texlivepath = '/usr/texbin/pdflatex'
 
-    errorLog, temp = execute(["/usr/texbin/pdflatex",
+    errorLog, temp = execute([texlivepath,
                               "-shell-escape", "-halt-on-error",
                               "-output-directory", tempDir, latexPath])
     try:
