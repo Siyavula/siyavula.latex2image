@@ -58,3 +58,7 @@ target/
 
 # virtualenv
 venv
+
+# misc
+.DS_Store
+cache
