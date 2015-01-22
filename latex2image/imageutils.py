@@ -28,9 +28,18 @@ def cleanup_after_latex(figpath):
             raise  # re-raise exception
 
 
-def run_latex(pictype, codehash, codetext, cachepath, dpi=300):
+def run_latex(pictype, codehash, codetext, cachepath, dpi=300,
+              pdflatexpath=None):
     ''' Run the image generation for pstricks and tikz images
     '''
+
+    # try and find pdflatex
+    if pdflatexpath is None:
+        path = os.environ.get('PATH')
+        texpath = [p for p in path.split(':') if 'tex' in p]
+        if len(texpath) == 1:
+            pdflatexpath = texpath[0] + '/pdflatex'
+
     # copy to local image cache in .bookbuilder/images
     image_cache_path = os.path.join(cachepath,
                                     pictype,
@@ -46,11 +55,11 @@ def run_latex(pictype, codehash, codetext, cachepath, dpi=300):
         # send this object to pstikz2png
         try:
             if pictype == 'pspicture':
-                figpath = pstikz2png.pspicture2png(codetext, iDpi=dpi)
+                figpath = pstikz2png.pspicture2png(codetext, iDpi=dpi, pdflatexpath=pdflatexpath)
             elif pictype == 'tikzpicture':
-                figpath = pstikz2png.tikzpicture2png(codetext, iDpi=dpi)
+                figpath = pstikz2png.tikzpicture2png(codetext, iDpi=dpi, pdflatexpath=pdflatexpath)
             elif pictype == 'equation':
-                figpath = pstikz2png.equation2png(codetext, iDpi=dpi)
+                figpath = pstikz2png.equation2png(codetext, iDpi=dpi, pdflatexpath=pdflatexpath)
 
         except LatexPictureError as lpe:
             print(colored("\nLaTeX failure", "red"))

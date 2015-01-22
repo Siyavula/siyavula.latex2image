@@ -272,7 +272,7 @@ class LatexPictureError(Exception):
 
 
 def pstikz2png(iPictureElement, iLatex, iReturnEps=False, iPageWidthPx=None,
-               iDpi=150, iIncludedFiles={}):
+               iDpi=150, iIncludedFiles={}, pdflatexpath=None):
     """
     Inputs:
 
@@ -323,17 +323,10 @@ def pstikz2png(iPictureElement, iLatex, iReturnEps=False, iPageWidthPx=None,
         with open(os.path.join(tempDir, path), 'wb') as fp:
             fp.write(pathFile.read())
 
-    try:
-        texlivepath = [p for p in os.getenv('PATH').split(':') if 'texlive' in p][0]
-    except IndexError:
-        # use the /usr/bin/pdflatex as fallback
-        texlivepath = '/usr/bin'
+    if not pdflatexpath:
+        raise ValueError("pdflatexpath cannot be None")
 
-        # check if this exists
-        if not os.path.exists(texlivepath + '/pdflatex'):
-            texlivepath = '/usr/texbin/pdflatex'
-
-    errorLog, temp = execute([texlivepath,
+    errorLog, temp = execute([pdflatexpath,
                               "-shell-escape", "-halt-on-error",
                               "-output-directory", tempDir, latexPath])
     try:
