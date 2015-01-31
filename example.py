@@ -1,11 +1,11 @@
 
 import hashlib
-from latex2image.imageutils import run_latex
+from siyavula.latex2image.imageutils import run_latex
 
 
 def read_equations():
     txt = open('test-equations-short.txt', 'r').read()
-    equations = [e for e in txt.split('----') if len(e.strip()) > 0]
+    equations = [e for e in txt.split('----') if len(e.strip()) > 0][0:50]
 
     for i, e in enumerate(equations):
         if 'aligned' in e:
