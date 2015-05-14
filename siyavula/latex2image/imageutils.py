@@ -42,8 +42,9 @@ def run_latex(pictype, codehash, codetext, cachepath, dpi=300,
         else:
             # no custom latex installed. Try /usr/local/bin and /usr/local
             for path in ['/usr/local/bin/', '/usr/bin/']:
-                texpath = os.environ.get('PATH')
+                texpath = os.path.join(path, 'pdflatex')
                 if os.path.exists(texpath):
+                    pdflatexpath = texpath
                     break
 
 
