@@ -39,6 +39,13 @@ def run_latex(pictype, codehash, codetext, cachepath, dpi=300,
         texpath = [p for p in path.split(':') if 'tex' in p]
         if texpath:
             pdflatexpath = texpath[0] + '/pdflatex'
+        else:
+        # no custom latex installed. Try /usr/local/bin and /usr/local
+        for path in ['/usr/local/bin/', '/usr/bin/']:
+            texpath = os.environ.get('PATH')
+            if os.path.exists(texpath):
+                break
+
 
     # copy to local image cache in .bookbuilder/images
     image_cache_path = os.path.join(cachepath,
