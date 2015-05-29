@@ -257,7 +257,8 @@ equationTex = u'''\\documentclass[preview, border=1bp]{standalone}
 \\usepackage{xcolor}
 \\newcommand{\dottimes}{\ensuremath{\;.\;}}
 \\usepackage[utf8]{inputenc}
-
+\\newcommand{\lt}{<}
+\\newcommand{\gt}{>}
 \\begin{document}
 __CODE__
 \\end{document}'''.encode('utf-8')
