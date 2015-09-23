@@ -47,11 +47,8 @@ def run_latex(pictype, codehash, codetext, cachepath, dpi=300,
                     pdflatexpath = texpath
                     break
 
-
     # copy to local image cache in .bookbuilder/images
-    image_cache_path = os.path.join(cachepath,
-                                    pictype,
-                                    codehash+'.png')
+    image_cache_path = os.path.join(cachepath, pictype, codehash + '.png')
     rendered = False
     # skip image generation if it exists
     if os.path.exists(image_cache_path):
