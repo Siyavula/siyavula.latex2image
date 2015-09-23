@@ -309,7 +309,7 @@ def pstikz2png(iPictureElement, iLatex, iReturnEps=False, iPageWidthPx=None,
     code = code.replace(r'&amp;', '&').replace(r'&gt;', '>').replace(r'&lt;', '<')
 
     if code is None:
-        raise ValueError, "Code cannot be empty."
+        raise ValueError("Code cannot be empty.")
     with open(latexPath, 'wt') as fp:
         temp = unescape(iLatex.replace('__CODE__', code.strip()))
         try:
@@ -335,7 +335,9 @@ def pstikz2png(iPictureElement, iLatex, iReturnEps=False, iPageWidthPx=None,
     try:
         open(pdfPath, "rb")
     except IOError:
-        raise LatexPictureError, "LaTeX failed to compile the image. %s \n%s" % (latexPath, iLatex.replace('__CODE__', code.strip()))
+        raise LatexPictureError(
+            "LaTeX failed to compile the image. %s \n%s" % (
+                latexPath, iLatex.replace('__CODE__', code.strip())))
 
     # crop the pdf image too
 #   execute(['pdfcrop', '--margins', '1', pdfPath, pdfPath])

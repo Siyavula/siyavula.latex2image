@@ -35,7 +35,7 @@ def run_latex(pictype, codehash, codetext, cachepath, dpi=300,
 
     # try and find pdflatex
     if pdflatexpath is None:
-        path = os.environ.get('PATH')
+        path = os.environ.get('LATEX_PATH', os.environ.get('PATH'))
         texpath = [p for p in path.split(':') if 'tex' in p]
         if texpath:
             pdflatexpath = texpath[0] + '/pdflatex'
@@ -47,11 +47,8 @@ def run_latex(pictype, codehash, codetext, cachepath, dpi=300,
                     pdflatexpath = texpath
                     break
 
-
     # copy to local image cache in .bookbuilder/images
-    image_cache_path = os.path.join(cachepath,
-                                    pictype,
-                                    codehash+'.png')
+    image_cache_path = os.path.join(cachepath, pictype, codehash + '.png')
     rendered = False
     # skip image generation if it exists
     if os.path.exists(image_cache_path):

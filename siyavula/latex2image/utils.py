@@ -1,8 +1,7 @@
 import os
 import errno
 import shutil
-import multiprocessing
-from lxml import etree
+
 
 def mkdir_p(path):
     ''' mkdir -p functionality
