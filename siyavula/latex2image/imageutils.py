@@ -35,7 +35,7 @@ def run_latex(pictype, codehash, codetext, cachepath, dpi=300,
 
     # try and find pdflatex
     if pdflatexpath is None:
-        path = os.environ.get('PATH')
+        path = os.environ.get('LATEX_PATH', os.environ.get('PATH'))
         texpath = [p for p in path.split(':') if 'tex' in p]
         if texpath:
             pdflatexpath = texpath[0] + '/pdflatex'
