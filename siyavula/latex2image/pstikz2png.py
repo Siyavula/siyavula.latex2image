@@ -255,6 +255,7 @@ equationTex = u'''\\documentclass[preview, border=1bp]{standalone}
 \\usepackage{keystroke}
 \\usepackage{cancel}
 \\usepackage{xcolor}
+\\usepackage{eurosym}
 \\newcommand{\dottimes}{\ensuremath{\;.\;}}
 \\usepackage[utf8]{inputenc}
 \\newcommand{\lt}{<}

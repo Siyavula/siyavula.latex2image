@@ -117,6 +117,7 @@ def replace_latex_with_images(xml_dom, class_to_replace, cache_path, image_path)
         latex = latex.replace("\xc2\xa0", ' ')
         latex = latex.replace("\xce\xa9", r'\ensuremath{\Omega}')
         latex = latex.replace("\xc2\xb0", r'\text{$^\circ$}')
+        latex = latex.replace("\xe2\x82\xac", r'\euro')
 
         codehash = hashlib.md5(latex).hexdigest()
         try:
