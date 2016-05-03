@@ -248,19 +248,41 @@ disabledatascaling,
 \end{document}
 '''
 
+# Remove all the html define colour references when EdTech has removed all
+# hex codes for colours from their code
 equationTex = u'''\\documentclass[preview, border=1bp]{standalone}
 \\usepackage{amsmath}
 \\usepackage{amsfonts}
 \\usepackage{amssymb}
 \\usepackage{keystroke}
 \\usepackage{cancel}
-\\usepackage{xcolor}
+\\usepackage[usenames, dvipsnames, svgnames]{xcolor}
 \\usepackage{eurosym}
 \\newcommand{\dottimes}{\ensuremath{\;.\;}}
 \\usepackage[utf8]{inputenc}
 \\newcommand{\lt}{<}
 \\newcommand{\gt}{>}
 \\begin{document}
+\definecolor{\#800380}{HTML}{#800380}
+\definecolor{\#0303ff}{HTML}{#0303ff}
+\definecolor{\#ff7f00}{HTML}{#ff7f00}
+\definecolor{\#008000}{HTML}{#008000}
+\definecolor{\#121dc2}{HTML}{#121dc2}
+\definecolor{\#0000FF}{HTML}{#0000FF}
+\definecolor{\#990066}{HTML}{#990066}
+\definecolor{\#ff0000}{HTML}{#ff0000}
+\definecolor{\#ff9900}{HTML}{#ff9900}
+\definecolor{\#ffcc00}{HTML}{#ffcc00}
+\definecolor{\#009900}{HTML}{#009900}
+\definecolor{\#ff00ff}{HTML}{#ff00ff}
+\definecolor{\#le5510}{HTML}{#le5510}
+\definecolor{darkblue}{HTML}{#00008b}
+\definecolor{maroon}{HTML}{#800000}
+\definecolor{darkred}{HTML}{#8b0000}
+\definecolor{crimson}{HTML}{#dc143c}
+\definecolor{purple}{rgb}{0.63 0.13 0.94}
+\definecolor{darkgreen}{rgb}{0 0.39 0}
+\definecolor{orange}{rgb}{1 0.35 0}
 __CODE__
 \\end{document}'''.encode('utf-8')
 
@@ -364,6 +386,9 @@ def equation2png(iPspictureElement, *args, **kwargs):
     # check to see how many lines are in the code
     iPspictureElement = iPspictureElement.replace(r'\[', '\(').replace(r'\]', '\)')
     iPspictureElement = iPspictureElement.replace(r'&', r' &')
+    # Remove the next line when EdTech has removed all hex colour codes
+    # This escapes the # in the colour code
+    iPspictureElement = iPspictureElement.replace(r'{#', r'{\#')
     # remove tabs
     iPspictureElement = iPspictureElement.replace('\t', ' ')
     iPspictureElement = escape_percentage(iPspictureElement)
