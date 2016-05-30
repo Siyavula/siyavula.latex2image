@@ -18,9 +18,6 @@ def escape_percentage(equation):
 
 def equation2png(equation_element):
     '''Prepares equation code for conversion to png'''
-    # check to see how many lines are in the code - why?
-    equation_element = equation_element.replace(r'\[', '\(').replace(r'\]', '\)')
-    equation_element = equation_element.replace(r'&', r' &')
     # Remove the next line when EdTech has removed all hex colour codes
     # This escapes the # in the colour code
     equation_element = equation_element.replace(r'{#', r'{\#')

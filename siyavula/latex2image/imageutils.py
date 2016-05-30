@@ -15,9 +15,10 @@ import sys
 
 from termcolor import colored
 
+from preambles import PsPicture_preamble, tikz_preamble, equation_preamble
 from pstikz2png import tikzpicture2png, pspicture2png
 from equation2png import equation2png
-from utils import mkdir_p, copy_if_newer, unescape, cleanup_after_latex
+from utils import mkdir_p, copy_if_newer, unescape, cleanup_code
 
 log = logging.getLogger(__name__)
 
@@ -32,12 +33,15 @@ class LatexPictureError(Exception):
     pass
 
 
-def pstikz2png(picture_element, latex, return_eps=False, page_width_px=None,
+def latex2png(picture_element, preamble, return_eps=False, page_width_px=None,
                dpi=150, included_files={}, pdflatexpath=None):
     """
     Inputs:
 
       pspicture_element - etree.Element
+
+      preamble - which preamble to use, one of PsPicture_preamble, tikzpicture_preamble
+      or equation_preamble
 
       return_eps - whether to also return the intermediate EPS file
 
@@ -61,7 +65,7 @@ def pstikz2png(picture_element, latex, return_eps=False, page_width_px=None,
     # can send the raw string code or a <pre> element with <code> child
     if isinstance(picture_element, (str, unicode)):
         code = picture_element
-        code = cleanup_code(code)
+        code = utils.cleanup_code(code)
     else:
         code = picture_element.find('.//code').text.encode('utf-8')
     code = code.replace(r'&amp;', '&').replace(r'&gt;', '>').replace(r'&lt;', '<')
@@ -69,7 +73,7 @@ def pstikz2png(picture_element, latex, return_eps=False, page_width_px=None,
     if code is None:
         raise ValueError("Code cannot be empty.")
     with open(latexPath, 'wt') as fp:
-        temp = unescape(latex.replace('__CODE__', code.strip()))
+        temp = utils.unescape(preamble.replace('__CODE__', code.strip()))
         try:
             fp.write(temp)
         except UnicodeEncodeError:
@@ -150,13 +154,16 @@ def run_latex(pictype, codehash, codetext, cachepath, dpi=300,
     if not rendered:
         sys.stdout.write('.')
         if pictype == 'pspicture':
-            latex_code = psptikz2png.pspicture2png(codetext)
+            latex_code = pstikz2png.pspicture2png(codetext)
+            preamble = preambles.PsPicture_preamble
         elif pictype == 'tikzpicture':
-            latex_code = psptikz2png.tikzpicture2png(codetext)
+            latex_code = pstikz2png.tikzpicture2png(codetext)
+            preamble = preambles.tikz_preamble
         elif pictype == 'equation':
             latex_code = equation2png.equation2png(codetext)
+            preamble = preambles.equation_preamble
         try:
-            figpath = pstikz2png(latex_code, dpi=dpi, pdflatexpath=pdflatexpath)
+            figpath = latex2png(latex_code, preamble, dpi=dpi, pdflatexpath=pdflatexpath)
         except LatexPictureError as lpe:
             print(colored("\nLaTeX failure", "red"))
             print(unicode(lpe))
