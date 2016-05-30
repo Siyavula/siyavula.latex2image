@@ -1,6 +1,11 @@
 import os
 import errno
 import shutil
+import subprocess
+import tempfile
+import re
+import htmlentitydefs
+from htmlutils import repair_equations
 
 
 def mkdir_p(path):
@@ -46,3 +51,57 @@ def copy_if_newer(src, dest):
         success = False
 
     return success
+
+
+def unescape(text):
+    '''Formats unicode characters correctly'''
+    def fixup(m):
+        text = m.group(0)
+        if text[:2] == "&#":
+            # character reference
+            try:
+                if text[:3] == "&#x":
+                    return unichr(int(text[3:-1], 16))
+                else:
+                    return unichr(int(text[2:-1]))
+            except ValueError:
+                pass
+        else:
+            # named entity
+            try:
+                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+            except KeyError:
+                pass
+        return text  # leave as is
+    return re.sub("&#?\w+;", fixup, text)
+
+
+def cleanup_code(code):
+    ''' Removes nested math delimiters of the form \( \) inside $ $ pairs'''
+    result = re.findall(r'\$(.*?)\$', code)
+    for snippet in result:
+        newsnippet = snippet.replace(r'\(', ' ').replace(r'\)', ' ')
+        code = code.replace(snippet, newsnippet)
+
+    code = code.strip()
+
+    # if align* or {align} in code we don't need delimiters
+    if (r'align*' in code) or ('{align}' in code):
+        if code.startswith(r'\('):
+            code = code[2:]
+        if code.endswith('\)'):
+            code = code[:-2]
+
+    # remove blank lines and lines that start with %
+    newcode = []
+    for line in code.split('\n'):
+        if line.strip().startswith('%'):
+            continue
+        if not line.strip():
+            continue
+        newcode.append(line)
+    code = '\n'.join(newcode)
+
+    code = htmlutils.repair_equations(code)
+
+    return code

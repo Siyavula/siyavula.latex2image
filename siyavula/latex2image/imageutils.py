@@ -15,11 +15,98 @@ import sys
 
 from termcolor import colored
 
-from . import pstikz2png
-from .pstikz2png import LatexPictureError
-from . import utils
+from pstikz2png import tikzpicture2png, pspicture2png
+from equation2png import equation2png
+from utils import mkdir_p, copy_if_newer, unescape, cleanup_after_latex
 
 log = logging.getLogger(__name__)
+
+
+def execute(args):
+    p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = p.communicate()
+    return stdout, stderr
+
+
+class LatexPictureError(Exception):
+    pass
+
+
+def pstikz2png(picture_element, latex, return_eps=False, page_width_px=None,
+               dpi=150, included_files={}, pdflatexpath=None):
+    """
+    Inputs:
+
+      pspicture_element - etree.Element
+
+      return_eps - whether to also return the intermediate EPS file
+
+      page_width_px - page width in pixels, used to scale the
+        style:width attribute in the element.
+
+      dpi - Will be used only if the width of the figure relative to
+        the page width was not set (or the page width in pixels was not
+        passed as an argument).
+
+    Outputs:
+
+    One or two paths, the first to the PNG, the second to the EPS.
+    """
+
+    temp_dir = tempfile.mkdtemp()
+    latex_path = os.path.join(temp_dir, 'figure.tex')
+    png_path = os.path.join(temp_dir, 'figure.png')
+    pdf_path = os.path.join(temp_dir, 'figure.pdf')
+
+    # can send the raw string code or a <pre> element with <code> child
+    if isinstance(picture_element, (str, unicode)):
+        code = picture_element
+        code = cleanup_code(code)
+    else:
+        code = picture_element.find('.//code').text.encode('utf-8')
+    code = code.replace(r'&amp;', '&').replace(r'&gt;', '>').replace(r'&lt;', '<')
+
+    if code is None:
+        raise ValueError("Code cannot be empty.")
+    with open(latexPath, 'wt') as fp:
+        temp = unescape(latex.replace('__CODE__', code.strip()))
+        try:
+            fp.write(temp)
+        except UnicodeEncodeError:
+            fp.write(temp.encode('utf-8'))
+
+    for path, path_file in included_files.iteritems():
+        try:
+            os.makedirs(os.path.join(temp_dir, os.path.dirname(path)))
+        except OSError:
+            # Catch exception if path already exists
+            pass
+        with open(os.path.join(temp_dir, path), 'wb') as fp:
+            fp.write(path_file.read())
+
+    if not pdflatexpath:
+        raise ValueError("pdflatexpath cannot be None")
+
+    errorLog, temp = execute([pdflatexpath,
+                              "-shell-escape", "-halt-on-error",
+                              "-output-directory", temp_dir, latex_path])
+    try:
+        open(pdfPath, "rb")
+    except IOError:
+        raise latex_picture_error(
+            "LaTeX failed to compile the image. %s \n%s" % (
+                latex_path, latex.replace('__CODE__', code.strip())))
+
+    # crop the pdf image too
+    # execute(['pdfcrop', '--margins', '1', pdfPath, pdfPath])
+
+    execute(['convert',
+             '-density',
+             '%i' % dpi,
+             pdf_path,
+             png_path])
+
+    return png_path
 
 
 def cleanup_after_latex(figpath):
@@ -62,15 +149,14 @@ def run_latex(pictype, codehash, codetext, cachepath, dpi=300,
 
     if not rendered:
         sys.stdout.write('.')
-        # send this object to pstikz2png
+        if pictype == 'pspicture':
+            latex_code = psptikz2png.pspicture2png(codetext)
+        elif pictype == 'tikzpicture':
+            latex_code = psptikz2png.tikzpicture2png(codetext)
+        elif pictype == 'equation':
+            latex_code = equation2png.equation2png(codetext)
         try:
-            if pictype == 'pspicture':
-                figpath = pstikz2png.pspicture2png(codetext, iDpi=dpi, pdflatexpath=pdflatexpath)
-            elif pictype == 'tikzpicture':
-                figpath = pstikz2png.tikzpicture2png(codetext, iDpi=dpi, pdflatexpath=pdflatexpath)
-            elif pictype == 'equation':
-                figpath = pstikz2png.equation2png(codetext, iDpi=dpi, pdflatexpath=pdflatexpath)
-
+            figpath = pstikz2png(latex_code, dpi=dpi, pdflatexpath=pdflatexpath)
         except LatexPictureError as lpe:
             print(colored("\nLaTeX failure", "red"))
             print(unicode(lpe))

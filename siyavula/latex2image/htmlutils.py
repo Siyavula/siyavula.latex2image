@@ -1,6 +1,4 @@
-''' Miscellaneous functions that deals with html processing
-
-'''
+''' Miscellaneous functions that deals with html processing'''
 import HTMLParser
 import re
 
