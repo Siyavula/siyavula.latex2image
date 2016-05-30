@@ -1,10 +1,9 @@
 import os
 import errno
 import shutil
-import subprocess
-import tempfile
 import re
 import htmlentitydefs
+
 from htmlutils import repair_equations
 
 
@@ -102,6 +101,6 @@ def cleanup_code(code):
         newcode.append(line)
     code = '\n'.join(newcode)
 
-    code = htmlutils.repair_equations(code)
+    code = repair_equations(code)
 
     return code

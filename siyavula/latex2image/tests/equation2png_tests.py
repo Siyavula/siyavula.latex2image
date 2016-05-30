@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from siyavula.latex2image.equation2png import equation2png
+from siyavula.latex2image.utils import unescape
 
 class TestBaseEquationConversion(TestCase):
     '''
@@ -25,6 +26,6 @@ class TestBaseEquationConversion(TestCase):
 class TestUnicodeEquations(TestCase):
     '''Tests that unicode in equations is handled correctly'''
     def test_replace_quote_marks(self):
-        input_string = r'''\(&#8220;text&#8221;\)'''
-        output_string = r'''\(&#8220;text&#8221;\)'''
-        assert equation2png(input_string) == output_string
+        input_string = r'\(&#8220;text&#8221;\)'
+        output_string = u'\\(\u201ctext\u201d\\)'
+        assert unescape(input_string) == output_string

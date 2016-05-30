@@ -12,6 +12,8 @@ import lxml
 import os
 import shutil
 import sys
+import tempfile
+import subprocess
 
 from termcolor import colored
 
@@ -65,15 +67,15 @@ def latex2png(picture_element, preamble, return_eps=False, page_width_px=None,
     # can send the raw string code or a <pre> element with <code> child
     if isinstance(picture_element, (str, unicode)):
         code = picture_element
-        code = utils.cleanup_code(code)
+        code = cleanup_code(code)
     else:
         code = picture_element.find('.//code').text.encode('utf-8')
     code = code.replace(r'&amp;', '&').replace(r'&gt;', '>').replace(r'&lt;', '<')
 
     if code is None:
         raise ValueError("Code cannot be empty.")
-    with open(latexPath, 'wt') as fp:
-        temp = utils.unescape(preamble.replace('__CODE__', code.strip()))
+    with open(latex_path, 'wt') as fp:
+        temp = unescape(preamble.replace('__CODE__', code.strip()))
         try:
             fp.write(temp)
         except UnicodeEncodeError:
@@ -95,7 +97,7 @@ def latex2png(picture_element, preamble, return_eps=False, page_width_px=None,
                               "-shell-escape", "-halt-on-error",
                               "-output-directory", temp_dir, latex_path])
     try:
-        open(pdfPath, "rb")
+        open(pdf_path, "rb")
     except IOError:
         raise latex_picture_error(
             "LaTeX failed to compile the image. %s \n%s" % (
@@ -154,14 +156,14 @@ def run_latex(pictype, codehash, codetext, cachepath, dpi=300,
     if not rendered:
         sys.stdout.write('.')
         if pictype == 'pspicture':
-            latex_code = pstikz2png.pspicture2png(codetext)
-            preamble = preambles.PsPicture_preamble
+            latex_code = pspicture2png(codetext)
+            preamble = PsPicture_preamble()
         elif pictype == 'tikzpicture':
-            latex_code = pstikz2png.tikzpicture2png(codetext)
-            preamble = preambles.tikz_preamble
+            latex_code = tikzpicture2png(codetext)
+            preamble = tikz_preamble()
         elif pictype == 'equation':
-            latex_code = equation2png.equation2png(codetext)
-            preamble = preambles.equation_preamble
+            latex_code = equation2png(codetext)
+            preamble = equation_preamble()
         try:
             figpath = latex2png(latex_code, preamble, dpi=dpi, pdflatexpath=pdflatexpath)
         except LatexPictureError as lpe:
@@ -171,9 +173,9 @@ def run_latex(pictype, codehash, codetext, cachepath, dpi=300,
 
         if figpath:
             # done. copy to image cache
-            utils.copy_if_newer(figpath, image_cache_path)
+            copy_if_newer(figpath, image_cache_path)
             # copy the pdf also but run pdfcrop first
-            utils.copy_if_newer(figpath.replace('.png', '.pdf'),
+            copy_if_newer(figpath.replace('.png', '.pdf'),
                                 image_cache_path.replace('.png', '.pdf'))
 
             cleanup_after_latex(figpath)

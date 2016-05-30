@@ -1,5 +1,5 @@
 def PsPicture_preamble():
-    pstricksTex = r'''
+    pstricks_tex = r'''
         \documentclass[preview, border=1bp]{standalone}
         \renewcommand{\familydefault}{\sfdefault}
         \usepackage{fp}
@@ -114,11 +114,11 @@ def PsPicture_preamble():
         \end{pspicture}
         \end{document}
         '''
-    return pstricksTex
+    return pstricks_tex
 
 
 def tikz_preamble():
-    tikzTex = r'''
+    tikz_tex = r'''
         \documentclass[preview, border=1bp]{standalone}
         \renewcommand{\familydefault}{\sfdefault}
 
@@ -169,13 +169,13 @@ def tikz_preamble():
         \end{tikzpicture}
         \end{document}
         '''
-    return tikzTex
+    return tikz_tex
 
 
 def equation_preamble():
     # Remove all the html define colour references when EdTech has removed all
     # hex codes for colours from their code
-    equationTex = u'''\\documentclass[preview, border=1bp]{standalone}
+    equation_tex = u'''\\documentclass[preview, border=1bp]{standalone}
         \\usepackage{amsmath}
         \\usepackage{amsfonts}
         \\usepackage{amssymb}
@@ -209,4 +209,4 @@ def equation_preamble():
         \definecolor{orange}{rgb}{1 0.35 0}
         __CODE__
         \\end{document}'''.encode('utf-8')
-    return equationTex
+    return equation_tex
