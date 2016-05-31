@@ -104,3 +104,14 @@ def cleanup_code(code):
     code = repair_equations(code)
 
     return code
+
+
+def unicode_replacements(latex):
+    '''Takes in latex and replaces specific unicode characters with latex symbols'''
+    latex = latex.replace("\xe2\x88\x92", '-')
+    latex = latex.replace("\xc3\x97", r'\times')
+    latex = latex.replace("\xc2\xa0", ' ')
+    latex = latex.replace("\xce\xa9", r'\ensuremath{\Omega}')
+    latex = latex.replace("\xc2\xb0", r'\text{$^\circ$}')
+    latex = latex.replace("\xe2\x82\xac", r'\euro')
+    return latex

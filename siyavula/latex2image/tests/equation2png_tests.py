@@ -1,7 +1,7 @@
 from unittest import TestCase
 
 from siyavula.latex2image.equation2png import equation2png
-from siyavula.latex2image.utils import unescape
+from siyavula.latex2image.utils import unescape, unicode_replacements
 
 class TestBaseEquationConversion(TestCase):
     '''
@@ -29,3 +29,9 @@ class TestUnicodeEquations(TestCase):
         input_string = r'\(&#8220;text&#8221;\)'
         output_string = u'\\(\u201ctext\u201d\\)'
         assert unescape(input_string) == output_string
+
+    def test_replace_times(self):
+        # resume here to figure out why this fails
+        input_string = r'\(5 \xc3\x97 x\)'
+        output_string = r'\(5 \times x\)'
+        assert unicode_replacements(input_string) == output_string

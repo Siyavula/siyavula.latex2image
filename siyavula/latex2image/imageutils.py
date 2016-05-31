@@ -20,7 +20,7 @@ from termcolor import colored
 from preambles import PsPicture_preamble, tikz_preamble, equation_preamble
 from pstikz2png import tikzpicture2png, pspicture2png
 from equation2png import equation2png
-from utils import mkdir_p, copy_if_newer, unescape, cleanup_code
+from utils import mkdir_p, copy_if_newer, unescape, cleanup_code, unicode_replacements
 
 log = logging.getLogger(__name__)
 
@@ -207,12 +207,7 @@ def replace_latex_with_images(xml_dom, class_to_replace, cache_path, image_path)
             lxml.etree.strip_tags(equation, child.tag)
 
         latex = equation.text.strip().encode('utf-8')
-        latex = latex.replace("\xe2\x88\x92", '-')
-        latex = latex.replace("\xc3\x97", r'\times')
-        latex = latex.replace("\xc2\xa0", ' ')
-        latex = latex.replace("\xce\xa9", r'\ensuremath{\Omega}')
-        latex = latex.replace("\xc2\xb0", r'\text{$^\circ$}')
-        latex = latex.replace("\xe2\x82\xac", r'\euro')
+        latex = unicode_replacements(latex)
 
         codehash = hashlib.md5(latex).hexdigest()
         try:
