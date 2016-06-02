@@ -114,4 +114,6 @@ def unicode_replacements(latex):
     latex = latex.replace("\xce\xa9", r'\ensuremath{\Omega}')
     latex = latex.replace("\xc2\xb0", r'\text{$^\circ$}')
     latex = latex.replace("\xe2\x82\xac", r'\euro')
+    latex = latex.replace("\xe2\x80\x9c", r'``')
+    latex = latex.replace("\xe2\x80\x9d", r'"')
     return latex

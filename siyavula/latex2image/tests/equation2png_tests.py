@@ -25,13 +25,19 @@ class TestBaseEquationConversion(TestCase):
 
 class TestUnicodeEquations(TestCase):
     '''Tests that unicode in equations is handled correctly'''
-    def test_replace_quote_marks(self):
+    def test_convert_quote_marks(self):
         input_string = r'\(&#8220;text&#8221;\)'
-        output_string = u'\\(\u201ctext\u201d\\)'
-        assert unescape(input_string) == output_string
+        middle_string = u'\\(\u201ctext\u201d\\)'
+        output_string = '\\(\xe2\x80\x9ctext\xe2\x80\x9d\\)'
+        assert unescape(input_string) == middle_string
+        assert middle_string.strip().encode('utf-8') == output_string
 
     def test_replace_times(self):
-        # resume here to figure out why this fails
-        input_string = r'\(5 \xc3\x97 x\)'
+        input_string = '\\(5 \xc3\x97 x\\)'
         output_string = r'\(5 \times x\)'
+        assert unicode_replacements(input_string) == output_string
+
+    def test_replace_quotes(self):
+        input_string = '\\(\xe2\x80\x9ctext\xe2\x80\x9d\\)'
+        output_string = '\(``text"\)'
         assert unicode_replacements(input_string) == output_string
