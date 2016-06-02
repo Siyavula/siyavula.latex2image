@@ -18,6 +18,9 @@ def escape_percentage(equation):
 
 def equation2png(equation_element):
     '''Prepares equation code for conversion to png'''
+    # Replace the open and close delimiters with the inline latex delimiters
+    # This handles new lines and blank lines better
+    equation_element = '\({}\)'.format(equation_element[2:-2])
     # Remove the next line when EdTech has removed all hex colour codes
     # This escapes the # in the colour code
     equation_element = equation_element.replace(r'{#', r'{\#')
