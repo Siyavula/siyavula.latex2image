@@ -108,14 +108,19 @@ def cleanup_code(code):
 
 def unicode_replacements(latex):
     '''Takes in latex and replaces specific unicode characters with latex symbols'''
-    latex = latex.replace("\xe2\x88\x92", '-')
-    latex = latex.replace("\xc3\x97", r'\times')
-    latex = latex.replace("\xc2\xa0", ' ')
-    latex = latex.replace("\xce\xa9", r'\ensuremath{\Omega}')
-    latex = latex.replace("\xc2\xb0", r'\text{$^\circ$}')
-    latex = latex.replace("\xe2\x82\xac", r'\euro')
-    latex = latex.replace("\xc2\xb7", r'\cdot ')
-    latex = latex.replace("\xe2\x81\xbb\xc2\xb9", r'^{-1}')
-    latex = latex.replace("\xe2\x84\x83", r'^{\circ}C')
+    unicode_latex_dictionary = {
+        "\xe2\x88\x92": '-',
+        "\xc3\x97": r'\times',
+        "\xc2\xa0": ' ',
+        "\xce\xa9": r'\ensuremath{\Omega}',
+        "\xc2\xb0": r'\text{$^\circ$}',
+        "\xe2\x82\xac": r'\euro',
+        "\xc2\xb7": r'\cdot ',
+        "\xe2\x81\xbb\xc2\xb9": r'^{-1}',
+        "\xe2\x84\x83": r'^{\circ}C',
+    }
+
+    for key in unicode_latex_dictionary:
+        latex = latex.replace(key, unicode_latex_dictionary[key])
 
     return latex
