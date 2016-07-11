@@ -108,19 +108,33 @@ def cleanup_code(code):
 
 def unicode_replacements(latex):
     '''Takes in latex and replaces specific unicode characters with latex symbols'''
-    unicode_latex_dictionary = {
+    unicode_operators = {
         "\xe2\x88\x92": '-',
         "\xc3\x97": r'\times',
-        "\xc2\xa0": ' ',
-        "\xce\xa9": r'\ensuremath{\Omega}',
-        "\xc2\xb0": r'\text{$^\circ$}',
-        "\xe2\x82\xac": r'\euro',
         "\xc2\xb7": r'\cdot ',
+    }
+    unicode_superscripts = {
+        "\xc2\xb0": r'\text{$^\circ$}',
         "\xe2\x81\xbb\xc2\xb9": r'^{-1}',
+        "\xc2\xb2": r'^{2}',
+        "\xc2\xb3": r'^{3}',
         "\xe2\x84\x83": r'^{\circ}C',
     }
+    unicode_punctation_spacing = {
+        "\xc2\xa0": ' ',
+    }
+    unicode_symbols = {
+        "\xce\xa9": r'\ensuremath{\Omega}',
+        "\xe2\x82\xac": r'\euro',
+    }
 
-    for key in unicode_latex_dictionary:
-        latex = latex.replace(key, unicode_latex_dictionary[key])
+    for key in unicode_operators:
+        latex = latex.replace(key, unicode_operators[key])
+    for key in unicode_superscripts:
+        latex = latex.replace(key, unicode_superscripts[key])
+    for key in unicode_punctation_spacing:
+        latex = latex.replace(key, unicode_punctation_spacing[key])
+    for key in unicode_symbols:
+        latex = latex.replace(key, unicode_symbols[key])
 
     return latex
