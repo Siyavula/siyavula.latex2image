@@ -72,7 +72,7 @@ def latex2png(picture_element, preamble, return_eps=False, page_width_px=None,
         code = picture_element.find('.//code').text.encode('utf-8')
     code = code.replace(r'&amp;', '&').replace(r'&gt;', '>').replace(r'&lt;', '<')
 
-    if code is None:
+    if code is None or code == "":
         raise ValueError("Code cannot be empty.")
     with open(latex_path, 'wt') as fp:
         temp = unescape(preamble.replace('__CODE__', code.strip()))

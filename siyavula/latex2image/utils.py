@@ -91,14 +91,7 @@ def cleanup_code(code):
         if code.endswith('\)'):
             code = code[:-2]
 
-    # remove blank lines and lines that start with %
-    newcode = []
-    for line in code.split('\n'):
-        if line.strip().startswith('%'):
-            continue
-        if not line.strip():
-            continue
-        newcode.append(line)
+    newcode = [line for line in code.split('\n') if (not line.strip()) and (not line.strip().startswith('%'))]
     code = '\n'.join(newcode)
 
     code = repair_equations(code)
@@ -128,13 +121,15 @@ def unicode_replacements(latex):
         "\xe2\x82\xac": r'\euro',
     }
 
-    for key in unicode_operators:
-        latex = latex.replace(key, unicode_operators[key])
-    for key in unicode_superscripts:
-        latex = latex.replace(key, unicode_superscripts[key])
-    for key in unicode_punctation_spacing:
-        latex = latex.replace(key, unicode_punctation_spacing[key])
-    for key in unicode_symbols:
-        latex = latex.replace(key, unicode_symbols[key])
+    operations = [
+        unicode_operators
+        unicode_superscripts
+        unicode_punctation_spacing
+        unicode_symbols
+        ]
+
+    for operation in operations:
+        for key, value in operation.iteritems():
+            latex = latex.replace(key, value)
 
     return latex
