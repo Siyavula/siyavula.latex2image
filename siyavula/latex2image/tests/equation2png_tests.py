@@ -46,3 +46,10 @@ class TestUnicodeEquations(TestCase):
         output_string = r'\(mol\cdot g^{-1} ^{\circ}C x^{2} x^{3}\)'
         self.assertEqual(input_string.encode('utf-8'), middle_string)
         self.assertEqual(unicode_replacements(middle_string), output_string)
+
+    def test_middot_mess(self):
+        input_string = '\\(5 &middot; 6\\)'
+        middle_string = '\\(5 \xb7 6\\)'
+        output_string = r'\(5 \cdot 6\)'
+        self.assertEqual(unescape(input_string), u'\\(5 \xb7 6\\)')
+        self.assertEqual(unicode_replacements(middle_string), output_string)

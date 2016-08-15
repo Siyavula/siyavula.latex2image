@@ -103,8 +103,7 @@ def unicode_replacements(latex):
     '''Takes in latex and replaces specific unicode characters with latex symbols'''
     unicode_operators = {
         "\xe2\x88\x92": '-',
-        "\xc3\x97": r'\times',
-        "\xc2\xb7": r'\cdot ',
+        "\xc3\x97": r'\times'
     }
     unicode_superscripts = {
         "\xc2\xb0": r'\text{$^\circ$}',
@@ -122,11 +121,16 @@ def unicode_replacements(latex):
     }
 
     operations = [
-        unicode_operators
-        unicode_superscripts
-        unicode_punctation_spacing
+        unicode_operators,
+        unicode_superscripts,
+        unicode_punctation_spacing,
         unicode_symbols
         ]
+
+    if "\xb7" in latex:
+        # special replace since dicts are not ordered and unicode is a pain
+        latex = latex.replace('\xc2\xb7', r'\cdot ')
+        latex = latex.replace("\xb7", r'\cdot')
 
     for operation in operations:
         for key, value in operation.iteritems():
