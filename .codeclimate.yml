@@ -1,0 +1,16 @@
+languages:
+  Python: true
+engines:
+  fixme:
+    enabled: true
+  pep8:
+    enabled: true
+    checks:
+      E501:
+        enabled: false
+  radon:
+    enabled: true
+ratings:
+  paths:
+  - siyavula/latex2image/**
+  - "**.py"
