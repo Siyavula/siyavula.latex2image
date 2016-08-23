@@ -8,10 +8,11 @@ from htmlutils import repair_equations
 
 
 def mkdir_p(path):
-    ''' mkdir -p functionality
-    from:
-    http://stackoverflow.com/questions/600268/mkdir-p-functionality-in-python
-    '''
+    """
+    Implement "mkdir -p" functionality.
+
+    from: http://stackoverflow.com/questions/600268/mkdir-p-functionality-in-python
+    """
     try:
         os.makedirs(path)
     except OSError as exc:  # Python >2.5
@@ -22,10 +23,11 @@ def mkdir_p(path):
 
 
 def copy_if_newer(src, dest):
-    ''' Copy a file from src to  dest if src is newer than dest
+    """
+    Copy a file from src to  dest if src is newer than dest.
 
-    Returns True if success or False if there was a problem
-    '''
+    Returns True if success or False if there was a problem.
+    """
     success = True
     dest_dir = os.path.dirname(dest)
     if (dest_dir is None) or (src is None):
@@ -53,7 +55,7 @@ def copy_if_newer(src, dest):
 
 
 def unescape(text):
-    '''Formats unicode characters correctly'''
+    """Format unicode characters correctly."""
     def fixup(m):
         text = m.group(0)
         if text[:2] == "&#":
@@ -76,7 +78,7 @@ def unescape(text):
 
 
 def cleanup_code(code):
-    ''' Removes nested math delimiters of the form \( \) inside $ $ pairs'''
+    r"""Remove nested math delimiters of the form \( \) inside $ $ pairs."""
     result = re.findall(r'\$(.*?)\$', code)
     for snippet in result:
         newsnippet = snippet.replace(r'\(', ' ').replace(r'\)', ' ')
@@ -91,7 +93,8 @@ def cleanup_code(code):
         if code.endswith('\)'):
             code = code[:-2]
 
-    newcode = [line for line in code.split('\n') if (not line.strip()) and (not line.strip().startswith('%'))]
+    stripped_lines = [line.strip() for line in code.split('\n')]
+    newcode = [line for line in stripped_lines if line and not line.startswith('%')]
     code = '\n'.join(newcode)
 
     code = repair_equations(code)
@@ -100,40 +103,31 @@ def cleanup_code(code):
 
 
 def unicode_replacements(latex):
-    '''Takes in latex and replaces specific unicode characters with latex symbols'''
-    unicode_operators = {
-        "\xe2\x88\x92": '-',
-        "\xc3\x97": r'\times'
-    }
-    unicode_superscripts = {
-        "\xc2\xb0": r'\text{$^\circ$}',
-        "\xe2\x81\xbb\xc2\xb9": r'^{-1}',
-        "\xc2\xb2": r'^{2}',
-        "\xc2\xb3": r'^{3}',
-        "\xe2\x84\x83": r'^{\circ}C',
-    }
-    unicode_punctation_spacing = {
-        "\xc2\xa0": ' ',
-    }
-    unicode_symbols = {
-        "\xce\xa9": r'\ensuremath{\Omega}',
-        "\xe2\x82\xac": r'\euro',
-    }
+    """Take in latex and replaces specific unicode characters with latex symbols."""
+    operations = (
+        # unicode operators
+        ("\xe2\x88\x92", '-'),
+        ("\xc3\x97", r'\times'),
 
-    operations = [
-        unicode_operators,
-        unicode_superscripts,
-        unicode_punctation_spacing,
-        unicode_symbols
-        ]
+        # unicode_superscripts
+        ("\xc2\xb0", r'\text{$^\circ$}'),
+        ("\xe2\x81\xbb\xc2\xb9", r'^{-1}'),
+        ("\xc2\xb2", r'^{2}'),
+        ("\xc2\xb3", r'^{3}'),
+        ("\xe2\x84\x83", r'^{\circ}C'),
 
-    if "\xb7" in latex:
-        # special replace since dicts are not ordered and unicode is a pain
-        latex = latex.replace('\xc2\xb7', r'\cdot ')
-        latex = latex.replace("\xb7", r'\cdot')
+        # unicode_punctation_spacing
+        ("\xc2\xa0", ' '),
 
-    for operation in operations:
-        for key, value in operation.iteritems():
-            latex = latex.replace(key, value)
+        # unicode_symbols
+        ("\xce\xa9", r'\ensuremath{\Omega}'),
+        ("\xe2\x82\xac", r'\euro'),
+
+        # latex_replacements
+        ('\xc2\xb7', r'\cdot '),
+        ("\xb7", r'\cdot'))
+
+    for old_string, new_string in operations:
+        latex = latex.replace(old_string, new_string)
 
     return latex

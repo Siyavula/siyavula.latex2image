@@ -1,8 +1,4 @@
-"""
-This module contains functions that does convertion of code and equations to
-PDF and png formats
-
-"""
+"""This module converts code and equations to PDF and/or png formats."""
 
 from __future__ import print_function
 import logging
@@ -20,7 +16,7 @@ from termcolor import colored
 from preambles import PsPicture_preamble, tikz_preamble, equation_preamble
 from pstikz2png import tikzpicture2png, pspicture2png
 from equation2png import equation2png
-from utils import mkdir_p, copy_if_newer, unescape, cleanup_code, unicode_replacements
+from utils import copy_if_newer, unescape, cleanup_code, unicode_replacements
 
 log = logging.getLogger(__name__)
 
@@ -32,12 +28,16 @@ def execute(args):
 
 
 class LatexPictureError(Exception):
+    """Special Error around generating a Latex image."""
+
     pass
 
 
 def latex2png(picture_element, preamble, return_eps=False, page_width_px=None,
-               dpi=150, included_files={}, pdflatexpath=None):
+              dpi=150, included_files={}, pdflatexpath=None):
     """
+    Create a PNG image from latex.
+
     Inputs:
 
       pspicture_element - etree.Element
@@ -58,7 +58,6 @@ def latex2png(picture_element, preamble, return_eps=False, page_width_px=None,
 
     One or two paths, the first to the PNG, the second to the EPS.
     """
-
     temp_dir = tempfile.mkdtemp()
     latex_path = os.path.join(temp_dir, 'figure.tex')
     png_path = os.path.join(temp_dir, 'figure.png')
@@ -72,8 +71,9 @@ def latex2png(picture_element, preamble, return_eps=False, page_width_px=None,
         code = picture_element.find('.//code').text.encode('utf-8')
     code = code.replace(r'&amp;', '&').replace(r'&gt;', '>').replace(r'&lt;', '<')
 
-    if code is None or code == "":
+    if not code:
         raise ValueError("Code cannot be empty.")
+
     with open(latex_path, 'wt') as fp:
         temp = unescape(preamble.replace('__CODE__', code.strip()))
         try:
@@ -99,25 +99,20 @@ def latex2png(picture_element, preamble, return_eps=False, page_width_px=None,
     try:
         open(pdf_path, "rb")
     except IOError:
-        raise latex_picture_error(
+        raise LatexPictureError(
             "LaTeX failed to compile the image. %s \n%s" % (
-                latex_path, latex.replace('__CODE__', code.strip())))
+                latex_path, preamble.replace('__CODE__', code.strip())))
 
     # crop the pdf image too
     # execute(['pdfcrop', '--margins', '1', pdfPath, pdfPath])
 
-    execute(['convert',
-             '-density',
-             '%i' % dpi,
-             pdf_path,
-             png_path])
+    execute(['convert', '-density', '%i' % dpi, pdf_path, png_path])
 
     return png_path
 
 
 def cleanup_after_latex(figpath):
-    ''' clean up after the image generation
-    '''
+    """Clean up after the image generation."""
     tmpdir = os.path.dirname(figpath)
     try:
         shutil.rmtree(tmpdir)
@@ -126,11 +121,8 @@ def cleanup_after_latex(figpath):
             raise  # re-raise exception
 
 
-def run_latex(pictype, codehash, codetext, cachepath, dpi=300,
-              pdflatexpath=None):
-    ''' Run the image generation for pstricks and tikz images
-    '''
-
+def run_latex(pictype, codehash, codetext, cachepath, dpi=300, pdflatexpath=None):
+    """Run the image generation for pstricks and tikz images."""
     # try and find pdflatex
     if pdflatexpath is None:
         path = os.environ.get('LATEX_PATH', os.environ.get('PATH'))
@@ -176,7 +168,7 @@ def run_latex(pictype, codehash, codetext, cachepath, dpi=300,
             copy_if_newer(figpath, image_cache_path)
             # copy the pdf also but run pdfcrop first
             copy_if_newer(figpath.replace('.png', '.pdf'),
-                                image_cache_path.replace('.png', '.pdf'))
+                          image_cache_path.replace('.png', '.pdf'))
 
             cleanup_after_latex(figpath)
     else:
@@ -187,7 +179,9 @@ def run_latex(pictype, codehash, codetext, cachepath, dpi=300,
 
 
 def replace_latex_with_images(xml_dom, class_to_replace, cache_path, image_path):
-    '''
+    """
+    Replace images in latex with actual image data rather than the source latex.
+
     This will take an xml_dom and look for all instances of a certain class that will
     then be modified to have a rendered image in place instead of a mathjax equation (which
     can't render on devices without javascript).
@@ -199,7 +193,7 @@ def replace_latex_with_images(xml_dom, class_to_replace, cache_path, image_path)
                       by an image
     cache_path:       This is the path where the images will be saved
     image_path:       This is the URL by which the stored image can be retrieved
-    '''
+    """
     for equation in xml_dom.findall('.//*[@class="{}"]'.format(class_to_replace)):
         # strip any tags found inside this element
         while len(equation) > 0:
