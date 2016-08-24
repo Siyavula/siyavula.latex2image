@@ -55,14 +55,14 @@ class TestUnicodeEquations(TestCase):
     def test_convert_superscript(self):
         input_string = u'\\(mol·g⁻¹ ℃ x² x³\\)'
         middle_string = '\\(mol\xc2\xb7g\xe2\x81\xbb\xc2\xb9 \xe2\x84\x83 x\xc2\xb2 x\xc2\xb3\\)'
-        output_string = r'\(mol\ensuremath{\cdot} g^{-1} ^{\circ}C x^{2} x^{3}\)'
+        output_string = r'\(mol\ensuremath{\cdot}g^{-1} ^{\circ}C x^{2} x^{3}\)'
         self.assertEqual(input_string.encode('utf-8'), middle_string)
         self.assertEqual(unicode_replacements(middle_string), output_string)
 
     def test_middot_in_text_mode(self):
         input_string = '\\text{{m·s$^{{-2}}$}}'
         middle_string = '\\text{{m\xc2\xb7s$^{{-2}}$}}'
-        output_string = '\\text{{m\ensuremath{\cdot} s$^{{-2}}$}}'
+        output_string = '\\text{{m\ensuremath{\cdot}s$^{{-2}}$}}'
         self.assertEqual(unescape(input_string), '\\text{{m\xc2\xb7s$^{{-2}}$}}')
         self.assertEqual(unicode_replacements(middle_string), output_string)
 

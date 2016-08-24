@@ -124,7 +124,7 @@ def unicode_replacements(latex):
         ("\xe2\x82\xac", r'\euro'),
 
         # latex_replacements
-        ('\xc2\xb7', r'\ensuremath{\cdot} '),
+        ('\xc2\xb7', r'\ensuremath{\cdot}'),
         ("\xb7", r'\ensuremath{\cdot}'))
 
     for old_string, new_string in operations:
