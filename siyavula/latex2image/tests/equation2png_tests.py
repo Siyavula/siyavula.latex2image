@@ -26,6 +26,18 @@ class TestBaseEquationConversion(TestCase):
         output_string = '\\(5x + y\\)'
         self.assertEqual(equation2png(input_string), output_string)
 
+    def test_complex_equation(self):
+        input_string = r'''\[\begin{{aligned}}
+        \vec{{F}}_{{g}} & = m\vec{{g}} \\
+        & = (\text{{12,7}}\ \text{{kg}})(\text{{9,8}}\ \text{{m·s$^{{-2}}$}}) \\
+        & = \text{{124,46}}\ \text{{N}}
+        \end{{aligned}}
+        \]'''
+        output_string = '\\(\\begin{{aligned}}\n        \\vec{{F}}_{{g}} & = m\\vec{{g}} \\\\\n        & = (\\text{{12,7}}\\ \\text{{kg}})(\\text{{9,8}}\\ \\text{{m\xc2\xb7s$^{{-2}}$}}) \\\\\n        & = \\text{{124,46}}\\ \\text{{N}}\n        \\end{{aligned}}\n        \\)'
+
+        self.assertEqual(equation2png(input_string), output_string)
+
+
 class TestUnicodeEquations(TestCase):
     '''Tests that unicode in equations is handled correctly'''
     def test_convert_quote_marks(self):
@@ -43,13 +55,20 @@ class TestUnicodeEquations(TestCase):
     def test_convert_superscript(self):
         input_string = u'\\(mol·g⁻¹ ℃ x² x³\\)'
         middle_string = '\\(mol\xc2\xb7g\xe2\x81\xbb\xc2\xb9 \xe2\x84\x83 x\xc2\xb2 x\xc2\xb3\\)'
-        output_string = r'\(mol\cdot g^{-1} ^{\circ}C x^{2} x^{3}\)'
+        output_string = r'\(mol\ensuremath{\cdot} g^{-1} ^{\circ}C x^{2} x^{3}\)'
         self.assertEqual(input_string.encode('utf-8'), middle_string)
+        self.assertEqual(unicode_replacements(middle_string), output_string)
+
+    def test_middot_in_text_mode(self):
+        input_string = '\\text{{m·s$^{{-2}}$}}'
+        middle_string = '\\text{{m\xc2\xb7s$^{{-2}}$}}'
+        output_string = '\\text{{m\ensuremath{\cdot} s$^{{-2}}$}}'
+        self.assertEqual(unescape(input_string), '\\text{{m\xc2\xb7s$^{{-2}}$}}')
         self.assertEqual(unicode_replacements(middle_string), output_string)
 
     def test_middot_mess(self):
         input_string = '\\(5 &middot; 6\\)'
         middle_string = '\\(5 \xb7 6\\)'
-        output_string = r'\(5 \cdot 6\)'
+        output_string = r'\(5 \ensuremath{\cdot} 6\)'
         self.assertEqual(unescape(input_string), u'\\(5 \xb7 6\\)')
         self.assertEqual(unicode_replacements(middle_string), output_string)
