@@ -1,4 +1,3 @@
-
 import hashlib
 from siyavula.latex2image.imageutils import run_latex
 
@@ -11,7 +10,6 @@ def read_equations():
         if 'aligned' in e:
             equations[i] = e.strip()[2:-2].replace('aligned', 'align')
 
-
     return equations
 
 if __name__ == "__main__":
@@ -20,4 +18,4 @@ if __name__ == "__main__":
         codehash = hashlib.md5(equation).hexdigest()
         cache_path = 'cache'
         imagepath = run_latex('equation', codehash, equation, cache_path)
-        print '\n {}/{} > '.format(i+1, len(equations)) + imagepath
+        print '\n {}/{} > '.format(i + 1, len(equations)) + imagepath

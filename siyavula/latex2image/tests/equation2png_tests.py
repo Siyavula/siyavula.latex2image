@@ -4,10 +4,10 @@ from unittest import TestCase
 from siyavula.latex2image.equation2png import equation2png
 from siyavula.latex2image.utils import unescape, unicode_replacements
 
+
 class TestBaseEquationConversion(TestCase):
-    '''
-    Tests the equation converter
-    '''
+    """Test the equation converter."""
+
     def test_replace_block_delimiters(self):
         input_string = r'''\[\begin{{array}}{{rcc}}
         5x &amp; = 5y + 7 &amp; \text{{here}} \\[2pt]
@@ -39,7 +39,8 @@ class TestBaseEquationConversion(TestCase):
 
 
 class TestUnicodeEquations(TestCase):
-    '''Tests that unicode in equations is handled correctly'''
+    """Test that unicode in equations is handled correctly."""
+
     def test_convert_quote_marks(self):
         input_string = r'\(&#8220;text&#8221;\)'
         middle_string = u'\\(\u201ctext\u201d\\)'

@@ -14,3 +14,6 @@ ratings:
   paths:
   - siyavula/latex2image/**
   - "**.py"
+exclude_paths:
+- "siyavula/latex2image/tests/*"
+- "siyavula/latex2image/tests/**/*"
