@@ -1,18 +1,15 @@
-''' Miscellaneous functions that deals with html processing
-
-'''
+"""Miscellaneous functions that deals with html processing."""
 import HTMLParser
 import re
 
 
 def repair_equations(html):
-    r''' Some equations contain escaped unicode entities. Replace them with
-    unicode.
+    r"""
+    Replace equations containing escaped unicode entities with unicode.
 
-    Some images have nested math environments i.e. $\(\text{blah}\)$, remove
-    the inner math delimiters
-
-    '''
+    Some images have nested math environments i.e. $\(\text{blah}\)$, remove the inner math
+    delimiters.
+    """
     htmlparser = HTMLParser.HTMLParser()
     html = html.replace('&amp;#', '&#')
     entities = re.findall('&#.*?;', html)

@@ -1,0 +1,24 @@
+languages:
+  Python: true
+engines:
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - python
+  fixme:
+    enabled: true
+  pep8:
+    enabled: true
+    checks:
+      E501:
+        enabled: false
+  radon:
+    enabled: true
+ratings:
+  paths:
+  - siyavula/latex2image/**
+  - "**.py"
+exclude_paths:
+- "siyavula/latex2image/tests/*"
+- "siyavula/latex2image/tests/**/*"

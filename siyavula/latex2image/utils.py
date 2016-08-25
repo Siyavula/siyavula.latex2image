@@ -1,13 +1,18 @@
 import os
 import errno
 import shutil
+import re
+import htmlentitydefs
+
+from htmlutils import repair_equations
 
 
 def mkdir_p(path):
-    ''' mkdir -p functionality
-    from:
-    http://stackoverflow.com/questions/600268/mkdir-p-functionality-in-python
-    '''
+    """
+    Implement "mkdir -p" functionality.
+
+    from: http://stackoverflow.com/questions/600268/mkdir-p-functionality-in-python
+    """
     try:
         os.makedirs(path)
     except OSError as exc:  # Python >2.5
@@ -18,10 +23,11 @@ def mkdir_p(path):
 
 
 def copy_if_newer(src, dest):
-    ''' Copy a file from src to  dest if src is newer than dest
+    """
+    Copy a file from src to  dest if src is newer than dest.
 
-    Returns True if success or False if there was a problem
-    '''
+    Returns True if success or False if there was a problem.
+    """
     success = True
     dest_dir = os.path.dirname(dest)
     if (dest_dir is None) or (src is None):
@@ -46,3 +52,82 @@ def copy_if_newer(src, dest):
         success = False
 
     return success
+
+
+def unescape(text):
+    """Format unicode characters correctly."""
+    def fixup(m):
+        text = m.group(0)
+        if text[:2] == "&#":
+            # character reference
+            try:
+                if text[:3] == "&#x":
+                    return unichr(int(text[3:-1], 16))
+                else:
+                    return unichr(int(text[2:-1]))
+            except ValueError:
+                pass
+        else:
+            # named entity
+            try:
+                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+            except KeyError:
+                pass
+        return text  # leave as is
+    return re.sub("&#?\w+;", fixup, text)
+
+
+def cleanup_code(code):
+    r"""Remove nested math delimiters of the form \( \) inside $ $ pairs."""
+    result = re.findall(r'\$(.*?)\$', code)
+    for snippet in result:
+        newsnippet = snippet.replace(r'\(', ' ').replace(r'\)', ' ')
+        code = code.replace(snippet, newsnippet)
+
+    code = code.strip()
+
+    # if align* or {align} in code we don't need delimiters
+    if (r'align*' in code) or ('{align}' in code):
+        if code.startswith(r'\('):
+            code = code[2:]
+        if code.endswith('\)'):
+            code = code[:-2]
+
+    stripped_lines = [line.strip() for line in code.split('\n')]
+    newcode = [line for line in stripped_lines if line and not line.startswith('%')]
+    code = '\n'.join(newcode)
+
+    code = repair_equations(code)
+
+    return code
+
+
+def unicode_replacements(latex):
+    """Take in latex and replaces specific unicode characters with latex symbols."""
+    operations = (
+        # unicode operators
+        ("\xe2\x88\x92", '-'),
+        ("\xc3\x97", r'\times'),
+
+        # unicode_superscripts
+        ("\xc2\xb0", r'\text{$^\circ$}'),
+        ("\xe2\x81\xbb\xc2\xb9", r'^{-1}'),
+        ("\xc2\xb2", r'^{2}'),
+        ("\xc2\xb3", r'^{3}'),
+        ("\xe2\x84\x83", r'^{\circ}C'),
+
+        # unicode_punctation_spacing
+        ("\xc2\xa0", ' '),
+
+        # unicode_symbols
+        ("\xce\xa9", r'\ensuremath{\Omega}'),
+        ("\xe2\x82\xac", r'\euro'),
+
+        # latex_replacements
+        ('\xc2\xb7', r'\ensuremath{\cdot}'),
+        ("\xb7", r'\ensuremath{\cdot}'))
+
+    for old_string, new_string in operations:
+        latex = latex.replace(old_string, new_string)
+
+    return latex
