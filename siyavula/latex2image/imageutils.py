@@ -192,7 +192,7 @@ def replace_latex_with_images(xml_dom, class_to_replace, cache_path, image_path)
     class_to_replace: This is the class to look out for, whose latex content will be replace
                       by an image
     cache_path:       This is the path where the images will be saved
-    image_path:       This is the URL by which the stored image can be retrieved
+    image_path:       This is the host part of the url for the image
     """
     for equation in xml_dom.findall('.//*[@class="{}"]'.format(class_to_replace)):
         # strip any tags found inside this element
