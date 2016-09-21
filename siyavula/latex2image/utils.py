@@ -125,7 +125,9 @@ def unicode_replacements(latex):
 
         # latex_replacements
         ('\xc2\xb7', r'\ensuremath{\cdot}'),
-        ("\xb7", r'\ensuremath{\cdot}'))
+        ("\xb7", r'\ensuremath{\cdot}'),
+        ('\xb5', r'\ensuremath{\mu}'),
+        ('\u03bc', r'\ensuremath{\mu}'))
 
     for old_string, new_string in operations:
         latex = latex.replace(old_string, new_string)
