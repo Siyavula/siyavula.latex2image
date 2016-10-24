@@ -1,3 +1,4 @@
+# coding=utf-8
 import os
 import errno
 import shutil
@@ -127,7 +128,9 @@ def unicode_replacements(latex):
         ('\xc2\xb7', r'\ensuremath{\cdot}'),
         ("\xb7", r'\ensuremath{\cdot}'),
         ('\xb5', r'\ensuremath{\mu}'),
-        ('\u03bc', r'\ensuremath{\mu}'))
+        ('\u03bc', r'\ensuremath{\mu}'),
+        ('μ', r'\ensuremath{\mu}'),
+        ('µ', r'\ensuremath{\mu}'))
 
     for old_string, new_string in operations:
         latex = latex.replace(old_string, new_string)
