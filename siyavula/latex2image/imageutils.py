@@ -216,4 +216,14 @@ def replace_latex_with_images(xml_dom, class_to_replace, cache_path, image_path)
         equation.text = ''
         img = lxml.etree.Element('img')
         img.attrib['src'] = '{}/{}.png'.format(image_path, codehash)
-        equation.append(img)
+        if equation.tag == 'div':
+            a_tag = lxml.etree.Element('a', {'href': '{}/{}.png'.format(image_path, codehash)})
+            icon_element = lxml.etree.Element('img', {
+                'src': '/static/themes/mobile/icons/png/black/calendar.png',
+                'class': 'icon icon-calendar',
+                'alt': 'resize image'})
+            a_tag.append(img)
+            a_tag.append(icon_element)
+            equation.append(a_tag)
+        else:
+            equation.append(img)
