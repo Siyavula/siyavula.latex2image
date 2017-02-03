@@ -219,11 +219,17 @@ def replace_latex_with_images(xml_dom, class_to_replace, cache_path, image_path)
         if equation.tag == 'div':
             a_tag = lxml.etree.Element('a', {'href': '{}/{}.png'.format(image_path, codehash)})
             icon_element = lxml.etree.Element('img', {
-                'src': '/static/themes/mobile/icons/png/black/calendar.png',
-                'class': 'icon icon-calendar',
+                'src': '/static/themes/mobile/icons/png/black/resize.png',
+                'class': 'icon icon-resize',
                 'alt': 'resize image'})
-            a_tag.append(img)
-            a_tag.append(icon_element)
+            icon_span = lxml.etree.Element('span', {'class': 'sv-action-image__action'})
+            image_span = lxml.etree.Element('span', {'class': 'sv-action-image__media'})
+            wrapper_span = lxml.etree.Element('span', {'class': 'sv-action-image'})
+            image_span.append(img)
+            icon_span.append(icon_element)
+            wrapper_span.append(image_span)
+            wrapper_span.append(icon_span)
+            a_tag.append(wrapper_span)
             equation.append(a_tag)
         else:
             equation.append(img)
