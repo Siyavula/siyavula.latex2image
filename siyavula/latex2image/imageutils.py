@@ -217,19 +217,15 @@ def replace_latex_with_images(xml_dom, class_to_replace, cache_path, image_path)
         img = lxml.etree.Element('img')
         img.attrib['src'] = '{}/{}.png'.format(image_path, codehash)
         if equation.tag == 'div':
-            a_tag = lxml.etree.Element('a', {'href': '{}/{}.png'.format(image_path, codehash)})
-            icon_element = lxml.etree.Element('img', {
+            a_tag = lxml.etree.SubElement(equation, 'a',
+                                          {'href': '{}/{}.png'.format(image_path, codehash),
+                                           'class': 'sv-action-image'})
+            image_span = lxml.etree.SubElement(a_tag, 'span', {'class': 'sv-action-image__media'})
+            image_span.append(img)
+            icon_span = lxml.etree.SubElement(a_tag, 'span', {'class': 'sv-action-image__action'})
+            lxml.etree.SubElement(icon_span, 'img', {
                 'src': '/static/themes/mobile/icons/png/black/resize.png',
                 'class': 'icon icon-resize',
                 'alt': 'resize image'})
-            icon_span = lxml.etree.Element('span', {'class': 'sv-action-image__action'})
-            image_span = lxml.etree.Element('span', {'class': 'sv-action-image__media'})
-            wrapper_span = lxml.etree.Element('span', {'class': 'sv-action-image'})
-            image_span.append(img)
-            icon_span.append(icon_element)
-            wrapper_span.append(image_span)
-            wrapper_span.append(icon_span)
-            a_tag.append(wrapper_span)
-            equation.append(a_tag)
         else:
             equation.append(img)
