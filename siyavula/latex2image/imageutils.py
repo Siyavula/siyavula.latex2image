@@ -222,10 +222,5 @@ def replace_latex_with_images(xml_dom, class_to_replace, cache_path, image_path)
                                            'class': 'sv-action-image'})
             image_span = lxml.etree.SubElement(a_tag, 'span', {'class': 'sv-action-image__media'})
             image_span.append(img)
-            icon_span = lxml.etree.SubElement(a_tag, 'span', {'class': 'sv-action-image__action'})
-            lxml.etree.SubElement(icon_span, 'img', {
-                'src': '/static/themes/mobile/icons/png/black/resize.png',
-                'class': 'icon icon-resize',
-                'alt': 'resize image'})
         else:
             equation.append(img)
