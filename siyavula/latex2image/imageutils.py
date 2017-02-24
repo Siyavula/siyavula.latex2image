@@ -218,7 +218,6 @@ def replace_latex_with_images(xml_dom, class_to_replace, cache_path, image_path)
         img.attrib['src'] = '{}/{}.png'.format(image_path, codehash)
         if equation.tag == 'div':
             a_tag = lxml.etree.SubElement(equation, 'a', {'href': '{}/{}.png'.format(image_path, codehash)})
-            image_span = lxml.etree.SubElement(a_tag, 'span')
-            image_span.append(img)
+            a_tag.append(img)
         else:
             equation.append(img)
