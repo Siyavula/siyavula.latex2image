@@ -73,3 +73,17 @@ class TestUnicodeEquations(TestCase):
         output_string = r'\(5 \ensuremath{\cdot} 6\)'
         self.assertEqual(unescape(input_string), u'\\(5 \xb7 6\\)')
         self.assertEqual(unicode_replacements(middle_string), output_string)
+
+    def test_micro_mu_in_text_mode(self):
+        input_string = u'\\text{{&#181; µ &#956; μ &#956;N}}'
+        middle_string = '\\text{{\xb5 \xb5 \u03bc \u03bc \u03bcN}}'
+        output_string = '\\text{{\ensuremath{\mu} \ensuremath{\mu} \ensuremath{\mu} \ensuremath{\mu} \ensuremath{\mu}N}}'
+        self.assertEqual(unescape(input_string), u'\\text{{\xb5 \xb5 \u03bc \u03bc \u03bcN}}')
+        self.assertEqual(unicode_replacements(middle_string), output_string)
+
+    def test_micro_mu_with_unit(self):
+        input_string = u'\\text{μN µN}'
+        middle_string = '\\text{\u03bcN \xb5N}'
+        output_string = '\\text{\ensuremath{\mu}N \ensuremath{\mu}N}'
+        self.assertEqual(unescape(input_string), u'\\text{\u03bcN \xb5N}')
+        self.assertEqual(unicode_replacements(middle_string), output_string)
