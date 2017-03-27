@@ -203,9 +203,21 @@ def replace_latex_with_images(xml_dom, class_to_replace, cache_path, image_path)
         latex = equation.text.strip().encode('utf-8')
         latex = unicode_replacements(latex)
 
-        codehash = hashlib.md5(latex).hexdigest()
+        # CSS font-size
+        font_size = 1.25
+        dpi = 150 * font_size
+        codehash_1x = hashlib.md5('dpi=' + str(dpi) + ';' + latex).hexdigest()
         try:
-            run_latex('equation', codehash, latex, cache_path)
+            run_latex('equation', codehash_1x, latex, cache_path, dpi)
+        except Exception as E:
+            log.warn(
+                "Failed to generate png for equation: {}\n\nException: {}\n\n"
+                "Original Element: {}".format(latex, E, lxml.etree.tostring(equation)))
+
+        dpi *= 2
+        codehash_2x = hashlib.md5('dpi=' + str(dpi) + ';' + latex).hexdigest()
+        try:
+            run_latex('equation', codehash_2x, latex, cache_path, dpi)
         except Exception as E:
             log.warn(
                 "Failed to generate png for equation: {}\n\nException: {}\n\n"
@@ -215,9 +227,10 @@ def replace_latex_with_images(xml_dom, class_to_replace, cache_path, image_path)
         # put a new img element inside the parent element
         equation.text = ''
         img = lxml.etree.Element('img')
-        img.attrib['src'] = '{}/{}.png'.format(image_path, codehash)
+        img.attrib['src'] = '{}/{}.png'.format(image_path, codehash_1x)
+        img.attrib['srcset'] = '{}/{}.png 2x'.format(image_path, codehash_2x)
         if equation.tag == 'div':
-            a_tag = lxml.etree.SubElement(equation, 'a', {'href': '{}/{}.png'.format(image_path, codehash)})
+            a_tag = lxml.etree.SubElement(equation, 'a', {'href': '{}/{}.png'.format(image_path, codehash_1x)})
             a_tag.append(img)
         else:
             equation.append(img)
