@@ -204,7 +204,7 @@ def replace_latex_with_images(xml_dom, class_to_replace, cache_path, image_path)
         latex = unicode_replacements(latex)
 
         # CSS font-size
-        font_size = 1.125
+        font_size = 1.25
         dpi = 150 * font_size
         codehash_1x = hashlib.md5('dpi=' + str(dpi) + ';' + latex).hexdigest()
         try:
