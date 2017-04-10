@@ -211,8 +211,8 @@ def replace_latex_with_images(xml_dom, class_to_replace, cache_path, image_path)
             run_latex('equation', codehash_1x, latex, cache_path, dpi)
         except Exception as E:
             log.warn(
-                "Failed to generate png for equation: {}\n\nException: {}\n\n"
-                "Original Element: {}".format(latex, E, lxml.etree.tostring(equation)))
+                "Failed to generate png for equation at {} DPI: {}\n\nException: {}\n\n"
+                "Original Element: {}".format(dpi, latex, E, lxml.etree.tostring(equation)))
 
         dpi *= 2
         codehash_2x = hashlib.md5('dpi=' + str(dpi) + ';' + latex).hexdigest()
@@ -220,8 +220,8 @@ def replace_latex_with_images(xml_dom, class_to_replace, cache_path, image_path)
             run_latex('equation', codehash_2x, latex, cache_path, dpi)
         except Exception as E:
             log.warn(
-                "Failed to generate png for equation: {}\n\nException: {}\n\n"
-                "Original Element: {}".format(latex, E, lxml.etree.tostring(equation)))
+                "Failed to generate png for equation at {} DPI: {}\n\nException: {}\n\n"
+                "Original Element: {}".format(dpi, latex, E, lxml.etree.tostring(equation)))
 
         # imagepath contains contains the path the created image
         # put a new img element inside the parent element
