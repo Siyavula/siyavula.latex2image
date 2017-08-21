@@ -229,7 +229,9 @@ def replace_latex_with_images(xml_dom, class_to_replace, cache_path, image_path)
         img = lxml.etree.Element('img')
         img.attrib['src'] = '{}/{}.png'.format(image_path, codehash_1x)
         img.attrib['srcset'] = '{}/{}.png 2x'.format(image_path, codehash_2x)
-        if equation.tag == 'div':
+        if equation.tag == 'div' and not equation.xpath(
+                'ancestor::label[@class="sv-radio-button__label"]'):  
+            # images in radio button must not be clickable 
             isolated_image_path = '/practice/isolated_equation{}/{}.png'.format(
                 image_path, codehash_1x)
             a_tag = lxml.etree.SubElement(equation, 'a', {'href': isolated_image_path})
