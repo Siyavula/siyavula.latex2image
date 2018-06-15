@@ -25,7 +25,7 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            nosetests --with-coverage --cover-package=src/siyavula.latex2image siyavula.latex2image/tests
+            nosetests --with-coverage --cover-package=siyavula.latex2image siyavula/latex2image/tests
       - store_artifacts:
           path: test-reports
           destination: test-reports
