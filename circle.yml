@@ -1,3 +1,0 @@
-test:
-  override:
-    - nosetests --with-coverage --cover-package=siyavula.latex2image siyavula/latex2image
