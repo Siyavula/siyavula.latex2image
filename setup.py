@@ -8,9 +8,7 @@ with open(os.path.join(here, 'README.md')) as f:
 with open(os.path.join(here, 'CHANGES.txt')) as f:
     CHANGES = f.read()
 
-requires = [
-    'termcolor',
-    'lxml']
+requires = []
 
 setup(name='siyavula.latex2image',
       version='1.0.0',
