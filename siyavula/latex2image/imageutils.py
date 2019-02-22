@@ -138,7 +138,7 @@ def run_latex(pictype, codehash, codetext, cachepath, dpi=300, pdflatexpath=None
                     break
 
     # copy to local image cache in .bookbuilder/images
-    image_cache_path = os.path.join(cachepath, pictype, codehash + '.png')
+    image_cache_path = os.path.join(cachepath, codehash + '.png')
     rendered = False
     # skip image generation if it exists
     if os.path.exists(image_cache_path):
@@ -159,8 +159,8 @@ def run_latex(pictype, codehash, codetext, cachepath, dpi=300, pdflatexpath=None
         try:
             figpath = latex2png(latex_code, preamble, dpi=dpi, pdflatexpath=pdflatexpath)
         except LatexPictureError as lpe:
-            print(colored("\nLaTeX failure", "red"))
-            print(unicode(lpe))
+            sys.stdout.write(colored("\nLaTeX failure", "red"))
+            sys.stdout.write(unicode(lpe))
             return None
 
         if figpath:
@@ -230,10 +230,9 @@ def replace_latex_with_images(xml_dom, class_to_replace, cache_path, image_path)
         img.attrib['src'] = '{}/{}.png'.format(image_path, codehash_1x)
         img.attrib['srcset'] = '{}/{}.png 2x'.format(image_path, codehash_2x)
         if equation.tag == 'div' and not equation.xpath(
-                'ancestor::div[@class="response-query-body"]'):  
-            # images in the query must not be clickable 
-            isolated_image_path = '/practice/isolated_equation{}/{}.png'.format(
-                image_path, codehash_1x)
+                'ancestor::div[@class="response-query-body"]'):
+            # images in the query must not be clickable
+            isolated_image_path = '{}/{}.png'.format(image_path, codehash_1x)
             a_tag = lxml.etree.SubElement(equation, 'a', {'href': isolated_image_path})
             a_tag.append(img)
         else:
