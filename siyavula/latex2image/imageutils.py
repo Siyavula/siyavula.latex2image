@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 import logging
+import docker
 import errno
 import hashlib
 import lxml
@@ -9,6 +10,7 @@ import os
 import shutil
 import sys
 import tempfile
+import time
 import subprocess
 
 from termcolor import colored
@@ -21,8 +23,8 @@ from utils import copy_if_newer, unescape, cleanup_code, unicode_replacements
 log = logging.getLogger(__name__)
 
 
-def execute(args, cwd=None):
-    p = subprocess.Popen(args, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+def execute(args, cwd=None, shell=False):
+    p = subprocess.Popen(args, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=shell)
     stdout, stderr = p.communicate()
     return stdout, stderr
 
@@ -33,8 +35,8 @@ class LatexPictureError(Exception):
     pass
 
 
-def latex2png(picture_element, preamble, return_eps=False, page_width_px=None,
-              dpi=150, included_files={}, pdflatexpath=None):
+def latex2png(picture_element, preamble, container, return_eps=False, page_width_px=None, dpi=150,
+              included_files={}, pdflatexpath=None):
     """
     Create a PNG image from latex.
 
@@ -93,10 +95,14 @@ def latex2png(picture_element, preamble, return_eps=False, page_width_px=None,
     if not pdflatexpath:
         raise ValueError("pdflatexpath cannot be None")
 
-    print('PATH: {}'.format(pdflatexpath))
-    errorLog, temp = execute([pdflatexpath,
-                              "-shell-escape", "-halt-on-error",
-                              "-output-directory", temp_dir, latex_path], cwd=temp_dir)
+    command = ['pdflatex', '-shell-escape', '-halt-on-error', '-output-directory=' + temp_dir,
+               latex_path]
+    container.exec_run(command, stdout=False, stderr=False)
+    wait_for_file(pdf_path)
+
+    # errorLog, temp = execute([pdflatexpath,
+    #                          "-shell-escape", "-halt-on-error",
+    #                          "-output-directory", temp_dir, latex_path], cwd=temp_dir)
     try:
         open(pdf_path, "rb")
     except IOError:
@@ -106,10 +112,23 @@ def latex2png(picture_element, preamble, return_eps=False, page_width_px=None,
 
     # crop the pdf image too
     # execute(['pdfcrop', '--margins', '1', pdfPath, pdfPath])
-
-    execute(['convert', '-density', '%i' % dpi, pdf_path, png_path])
+    errorLog, temp = execute(['convert', '-density', '%i' % dpi, pdf_path, png_path])
 
     return png_path
+
+
+def wait_for_file(file_path, timeout=3, interval=0.1):
+    '''
+    Wait for file to be generated, up to the max timeout and checking every interval.
+    Note: used for docker exec_run, because binding to stdout and stderr creates too much
+    overhead compared to running the latex conversion locally.
+    '''
+    time_counter = 0
+    while not os.path.exists(file_path):
+        time.sleep(interval)
+        time_counter += interval
+        if time_counter > timeout:
+            break
 
 
 def cleanup_after_latex(figpath):
@@ -138,10 +157,6 @@ def run_latex(pictype, codehash, codetext, cachepath, dpi=300, pdflatexpath=None
                     pdflatexpath = texpath
                     break
 
-    pdflatexpath = (
-        'docker-compose -f /home/rich/Siyavula/siyavula.latex.docker/docker-compose.yaml run '
-        'latex latex')
-
     # copy to local image cache in .bookbuilder/images
     image_cache_path = os.path.join(cachepath, codehash + '.png')
     rendered = False
@@ -149,6 +164,9 @@ def run_latex(pictype, codehash, codetext, cachepath, dpi=300, pdflatexpath=None
     if os.path.exists(image_cache_path):
         rendered = True
         sys.stdout.write('s')
+
+    client = docker.from_env()
+    container = client.containers.get('siyavula.latex')
 
     if not rendered:
         sys.stdout.write('.')
@@ -162,7 +180,7 @@ def run_latex(pictype, codehash, codetext, cachepath, dpi=300, pdflatexpath=None
             latex_code = equation2png(codetext)
             preamble = equation_preamble()
         try:
-            figpath = latex2png(latex_code, preamble, dpi=dpi, pdflatexpath=pdflatexpath)
+            figpath = latex2png(latex_code, preamble, container, dpi=dpi, pdflatexpath=pdflatexpath)
         except LatexPictureError as lpe:
             sys.stdout.write(colored("\nLaTeX failure", "red"))
             sys.stdout.write(unicode(lpe))
@@ -212,13 +230,12 @@ def replace_latex_with_images(xml_dom, class_to_replace, cache_path, image_path)
         font_size = 1.25
         dpi = 150 * font_size
         codehash_1x = hashlib.md5('dpi=' + str(dpi) + ';' + latex).hexdigest()
-        run_latex('equation', codehash_1x, latex, cache_path, dpi)
-        # try:
-        #     run_latex('equation', codehash_1x, latex, cache_path, dpi)
-        # except Exception as E:
-        #     log.warn(
-        #         "Failed to generate png for equation at {} DPI: {}\n\nException: {}\n\n"
-        #         "Original Element: {}".format(dpi, latex, E, lxml.etree.tostring(equation)))
+        try:
+            run_latex('equation', codehash_1x, latex, cache_path, dpi)
+        except Exception as E:
+            log.warn(
+                "Failed to generate png for equation at {} DPI: {}\n\nException: {}\n\n"
+                "Original Element: {}".format(dpi, latex, E, lxml.etree.tostring(equation)))
 
         dpi *= 2
         codehash_2x = hashlib.md5('dpi=' + str(dpi) + ';' + latex).hexdigest()
