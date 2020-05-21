@@ -100,9 +100,6 @@ def latex2png(picture_element, preamble, container, return_eps=False, page_width
     container.exec_run(command, stdout=False, stderr=False)
     wait_for_file(pdf_path)
 
-    # errorLog, temp = execute([pdflatexpath,
-    #                          "-shell-escape", "-halt-on-error",
-    #                          "-output-directory", temp_dir, latex_path], cwd=temp_dir)
     try:
         open(pdf_path, "rb")
     except IOError:
@@ -112,7 +109,7 @@ def latex2png(picture_element, preamble, container, return_eps=False, page_width
 
     # crop the pdf image too
     # execute(['pdfcrop', '--margins', '1', pdfPath, pdfPath])
-    errorLog, temp = execute(['convert', '-density', '%i' % dpi, pdf_path, png_path])
+    container.exec_run(['convert', '-density', '%i' % dpi, pdf_path, png_path])
 
     return png_path
 
@@ -166,7 +163,7 @@ def run_latex(pictype, codehash, codetext, cachepath, dpi=300, pdflatexpath=None
         sys.stdout.write('s')
 
     client = docker.from_env()
-    container = client.containers.get('siyavula.latex')
+    container = client.containers.get('latex')
 
     if not rendered:
         sys.stdout.write('.')
