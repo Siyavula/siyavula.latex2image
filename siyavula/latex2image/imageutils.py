@@ -92,9 +92,6 @@ def latex2png(picture_element, preamble, container, return_eps=False, page_width
         with open(os.path.join(temp_dir, path), 'wb') as fp:
             fp.write(path_file.read())
 
-    if not pdflatexpath:
-        raise ValueError("pdflatexpath cannot be None")
-
     command = ['pdflatex', '-shell-escape', '-halt-on-error', '-output-directory=' + temp_dir,
                latex_path]
     container.exec_run(command, stdout=False, stderr=False)
