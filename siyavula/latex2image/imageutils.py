@@ -254,3 +254,4 @@ def replace_latex_with_images(xml_dom, class_to_replace, cache_path, image_path)
             a_tag.append(img)
         else:
             equation.append(img)
+    return xml_dom
